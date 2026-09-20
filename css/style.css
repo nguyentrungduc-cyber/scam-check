@@ -1,0 +1,315 @@
+/* ============================================
+   VARIABLES — đổi màu/font ở đây, áp dụng toàn site
+   ============================================ */
+:root {
+    --color-primary: #2563eb;
+    --color-primary-dark: #1d4ed8;
+    --color-text: #1f2937;
+    --color-text-light: #6b7280;
+    --color-bg: #f9fafb;
+    --color-white: #ffffff;
+    --color-border: #e5e7eb;
+
+    /* Màu kết quả — dùng thống nhất cho checklist + quickcheck */
+    --color-safe: #16a34a;       /* xanh — an toàn */
+    --color-safe-bg: #f0fdf4;
+    --color-warning: #ca8a04;    /* vàng — cẩn thận */
+    --color-warning-bg: #fefce8;
+    --color-danger: #dc2626;     /* đỏ — rủi ro cao */
+    --color-danger-bg: #fef2f2;
+
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --max-width: 720px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--color-text);
+    background: var(--color-bg);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ============================================
+   HEADER / FOOTER
+   ============================================ */
+.site-header {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    padding: 16px 0;
+}
+
+.logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--color-text);
+}
+
+.site-footer {
+    margin-top: 48px;
+    padding: 24px 0;
+    text-align: center;
+    color: var(--color-text-light);
+    font-size: 0.875rem;
+}
+
+/* ============================================
+   HERO / GIỚI THIỆU
+   ============================================ */
+.hero {
+    text-align: center;
+    padding: 48px 0 32px;
+}
+
+.hero h2 {
+    font-size: 1.75rem;
+    margin-bottom: 12px;
+}
+
+.hero-desc {
+    color: var(--color-text-light);
+    max-width: 560px;
+    margin: 0 auto 24px;
+}
+
+.cta-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+    transition: opacity 0.15s ease;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.btn-secondary {
+    background: var(--color-white);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+
+/* ============================================
+   FEATURE SECTIONS (Checklist / Quickcheck)
+   ============================================ */
+.feature-section {
+    background: var(--color-white);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+.feature-section h2 {
+    margin-bottom: 8px;
+}
+
+.section-desc {
+    color: var(--color-text-light);
+    margin-bottom: 20px;
+}
+
+/* ============================================
+   CHECKLIST — danh sách câu hỏi
+   ============================================ */
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.placeholder-note {
+    color: var(--color-text-light);
+    font-style: italic;
+    padding: 16px;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+}
+
+/* Style gợi ý cho từng câu hỏi khi JS render — class do JS gán,
+   người làm CSS có thể chỉnh lại tùy thiết kế thật */
+.question-item {
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+}
+
+.question-item .question-text {
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.question-item .question-options {
+    display: flex;
+    gap: 16px;
+}
+
+/* ============================================
+   QUICKCHECK — ô nhập text
+   ============================================ */
+.quickcheck-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#quickcheck-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+}
+
+/* ============================================
+   RESULT BOX — dùng chung checklist + quickcheck
+   3 mức: safe (xanh) / warning (vàng) / danger (đỏ)
+   ============================================ */
+.result-box {
+    margin-top: 24px;
+}
+
+.result-box.hidden {
+    display: none;
+}
+
+.result-card {
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 2px solid;
+}
+
+.result-safe,
+.result-xanh {
+    background: var(--color-safe-bg);
+    border-color: var(--color-safe);
+    color: var(--color-safe);
+}
+
+.result-warning,
+.result-vang {
+    background: var(--color-warning-bg);
+    border-color: var(--color-warning);
+    color: var(--color-warning);
+}
+
+.result-danger,
+.result-do {
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.result-title {
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+}
+
+.result-score {
+    color: var(--color-text);
+    margin-bottom: 12px;
+}
+
+.result-reasons {
+    list-style: disc;
+    margin-left: 20px;
+    color: var(--color-text);
+    margin-bottom: 12px;
+}
+
+.result-advice {
+    color: var(--color-text);
+    margin-bottom: 12px;
+}
+
+.link-more {
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+/* ============================================
+   TRANG NỘI DUNG TĨNH (dấu hiệu lừa đảo)
+   ============================================ */
+.static-content {
+    background: var(--color-white);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+.static-content h1 {
+    margin-bottom: 16px;
+}
+
+.scam-sign {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.scam-sign:last-child {
+    border-bottom: none;
+}
+
+.scam-sign h2 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 600px) {
+    .hero h2 {
+        font-size: 1.4rem;
+    }
+
+    .feature-section {
+        padding: 20px;
+    }
+
+    .cta-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+}

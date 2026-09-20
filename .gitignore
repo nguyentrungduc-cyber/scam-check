@@ -1,0 +1,12 @@
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (nếu sau này thêm build tool/live-server qua npm)
+node_modules/
+package-lock.json

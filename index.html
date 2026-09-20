@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhận diện lừa đảo — Công cụ kiểm tra</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="container">
+            <h1 class="logo">🛡️ Nhận Diện Lừa Đảo</h1>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- ============================================
+             PHẦN 1: TRANG CHỦ / GIỚI THIỆU
+             ============================================ -->
+        <section id="intro" class="hero">
+            <h2>Bạn có đang bị lừa không?</h2>
+            <p class="hero-desc">
+                Công cụ giúp bạn nhanh chóng đánh giá mức độ rủi ro của một lời mời,
+                tin nhắn hoặc tình huống nghi ngờ lừa đảo — miễn phí, không lưu dữ liệu,
+                chạy hoàn toàn trên trình duyệt của bạn.
+            </p>
+
+            <div class="cta-group">
+                <a href="#checklist-section" class="btn btn-primary" data-action="show-checklist">
+                    📋 Làm Checklist
+                </a>
+                <a href="#quickcheck-section" class="btn btn-secondary" data-action="show-quickcheck">
+                    🔍 Kiểm tra tin nhắn / link
+                </a>
+            </div>
+        </section>
+
+        <!-- ============================================
+             PHẦN 2: CHECKLIST TƯƠNG TÁC
+             (8-10 câu có/không, có trọng số ẩn)
+             ============================================ -->
+        <section id="checklist-section" class="feature-section">
+            <h2>📋 Checklist đánh giá tình huống</h2>
+            <p class="section-desc">
+                Trả lời các câu hỏi dưới đây dựa trên tình huống bạn đang gặp phải.
+            </p>
+
+            <!-- 
+                TODO (người viết logic):
+                - Câu hỏi được render động từ js/data/checklist-questions.js
+                - Mỗi câu hỏi là 1 object { id, text, weight }
+                - JS sẽ inject các câu hỏi vào #checklist-questions bên dưới
+            -->
+            <form id="checklist-form">
+                <div id="checklist-questions" class="questions-list">
+                    <!-- Câu hỏi sẽ được JS render vào đây -->
+                    <p class="placeholder-note">⏳ Câu hỏi checklist sẽ hiển thị ở đây (chờ nối dữ liệu từ checklist-questions.js)</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="btn-checklist-submit">
+                    Xem kết quả
+                </button>
+            </form>
+
+            <!-- Kết quả checklist sẽ hiện ở đây sau khi submit -->
+            <div id="checklist-result" class="result-box hidden"></div>
+        </section>
+
+        <!-- ============================================
+             PHẦN 3: KIỂM TRA NHANH (dán text/link)
+             ============================================ -->
+        <section id="quickcheck-section" class="feature-section">
+            <h2>🔍 Kiểm tra nhanh tin nhắn / tin tuyển dụng</h2>
+            <p class="section-desc">
+                Dán nội dung tin nhắn, email hoặc bài đăng tuyển dụng nghi ngờ vào ô dưới đây.
+            </p>
+
+            <div class="quickcheck-box">
+                <textarea
+                    id="quickcheck-input"
+                    placeholder="Dán nội dung tin nhắn/link tại đây..."
+                    rows="8"
+                ></textarea>
+
+                <button type="button" class="btn btn-primary" id="btn-quickcheck-submit">
+                    Kiểm tra
+                </button>
+            </div>
+
+            <!-- Kết quả quét từ khóa sẽ hiện ở đây -->
+            <div id="quickcheck-result" class="result-box hidden"></div>
+        </section>
+
+        <!-- ============================================
+             PHẦN 4: KẾT QUẢ (dùng chung cho cả 2 chức năng)
+             Cấu trúc HTML mẫu — JS sẽ generate động và
+             chèn vào #checklist-result / #quickcheck-result
+             ============================================ -->
+        <template id="result-template">
+            <div class="result-card result-<!-- xanh|vang|do -->">
+                <h3 class="result-title"><!-- An toàn / Cẩn thận / Rủi ro cao --></h3>
+                <p class="result-score">Điểm rủi ro: <span class="score-value"></span></p>
+                <ul class="result-reasons">
+                    <!-- Danh sách lý do / từ khóa phát hiện -->
+                </ul>
+                <p class="result-advice"><!-- Lời khuyên cụ thể --></p>
+                <a href="pages/dau-hieu-lua-dao.html" class="link-more">
+                    Xem đầy đủ các dấu hiệu lừa đảo phổ biến →
+                </a>
+            </div>
+        </template>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>Dự án nhóm — Kỹ năng nghề nghiệp UIT · Không lưu trữ dữ liệu người dùng</p>
+        </div>
+    </footer>
+
+    <!-- Thứ tự load JS: dữ liệu trước, logic sau -->
+    <script src="js/data/checklist-questions.js"></script>
+    <script src="js/data/warning-keywords.js"></script>
+    <script src="js/checklist.js"></script>
+    <script src="js/quickcheck.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
