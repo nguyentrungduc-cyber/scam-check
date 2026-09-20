@@ -60,8 +60,8 @@ Deploy miễn phí bằng GitHub Pages:
 - [x] Cấu trúc file, thư mục
 - [x] HTML khung sườn đầy đủ (chưa có nội dung/logic thật)
 - [x] CSS layout + màu sắc cơ bản
-- [ ] Dữ liệu câu hỏi checklist thật
-- [ ] Dữ liệu từ khóa cảnh báo thật
+- [x] Dữ liệu câu hỏi checklist thật (10 câu, 6 nhóm lừa đảo phổ biến)
+- [x] Dữ liệu từ khóa cảnh báo thật (40 từ khóa, 6 nhóm)
 - [ ] Logic tính điểm + hiển thị kết quả
 - [ ] Nội dung trang "Dấu hiệu lừa đảo phổ biến"
 - [ ] Test trên nhiều tình huống mẫu
