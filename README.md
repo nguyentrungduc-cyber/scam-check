@@ -62,7 +62,21 @@ Deploy miễn phí bằng GitHub Pages:
 - [x] CSS layout + màu sắc cơ bản
 - [x] Dữ liệu câu hỏi checklist thật (10 câu, 6 nhóm lừa đảo phổ biến)
 - [x] Dữ liệu từ khóa cảnh báo thật (40 từ khóa, 6 nhóm)
-- [ ] Logic tính điểm + hiển thị kết quả
-- [ ] Nội dung trang "Dấu hiệu lừa đảo phổ biến"
-- [ ] Test trên nhiều tình huống mẫu
+- [x] Logic tính điểm + hiển thị kết quả (checklist + quickcheck)
+- [x] Nội dung trang "Dấu hiệu lừa đảo phổ biến" (9 dấu hiệu chi tiết)
+- [x] Bộ test tự động (16 test case, xem `tests/run-tests.js`)
 - [ ] Deploy GitHub Pages
+
+## Chạy test tự động
+
+Bộ test giả lập tương tác thật trong trình duyệt (jsdom), kiểm tra checklist
+và quickcheck với nhiều tình huống mẫu (rủi ro cao / cẩn thận / an toàn / edge case).
+
+```bash
+npm install jsdom --no-save    # chỉ cần cài tạm để test, không commit vào repo
+node tests/run-tests.js
+```
+
+Chạy lại bộ test này mỗi khi sửa dữ liệu (`checklist-questions.js`,
+`warning-keywords.js`) hoặc logic (`checklist.js`, `quickcheck.js`) để đảm
+bảo không có gì bị vỡ ngoài ý muốn.
