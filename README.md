@@ -64,7 +64,9 @@ Deploy miễn phí bằng GitHub Pages:
 - [x] Dữ liệu từ khóa cảnh báo thật (40 từ khóa, 6 nhóm)
 - [x] Logic tính điểm + hiển thị kết quả (checklist + quickcheck)
 - [x] Nội dung trang "Dấu hiệu lừa đảo phổ biến" (9 dấu hiệu chi tiết)
-- [x] Bộ test tự động (16 test case, xem `tests/run-tests.js`)
+- [x] Phân tích link trong quickcheck: whitelist domain uy tín, phát hiện
+      domain giả mạo thương hiệu (typosquatting), TLD đáng ngờ, link rút gọn
+- [x] Bộ test tự động (23 test case, xem `tests/run-tests.js`)
 - [ ] Deploy GitHub Pages
 
 ## Chạy test tự động

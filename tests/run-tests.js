@@ -28,6 +28,7 @@ function loadPage() {
     const scripts = [
         "js/data/checklist-questions.js",
         "js/data/warning-keywords.js",
+        "js/data/link-safety.js",
         "js/checklist.js",
         "js/quickcheck.js",
         "js/main.js",
@@ -178,6 +179,54 @@ console.log("\n--- Quickcheck ---\n");
     runQuickcheck(window, "Mình cần bạn xử lý việc này gấp trước cuối ngày nhé, deadline dự án.");
     console.log(`   (B6 - chỉ có từ 'gấp', điểm: ${getResultScore(window, "quickcheck-result")}, mức: ${getResultTitle(window, "quickcheck-result")} — kỳ vọng KHÔNG phải Rủi ro cao)`);
     check("B6: Chỉ 1 dấu hiệu nhẹ — không nên là Rủi ro cao", getResultTitle(window, "quickcheck-result") === "🚨 Rủi ro cao", false);
+}
+
+// ==============================================================
+// NHÓM C: PHÂN TÍCH LINK
+// ==============================================================
+console.log("\n--- Phân tích link ---\n");
+
+{
+    // Tình huống C1: Link tuyển dụng thật từ JobsGo (whitelist)
+    const window = loadPage();
+    runQuickcheck(window, "https://jobsgo.vn/viec-lam/nhan-vien-thiet-ke-noi-that-luong-10tr-20trtai-ha-noi-hcm-28682134118.html?ref_component=job_list__item");
+    check("C1: Link JobsGo thật — mức độ", getResultTitle(window, "quickcheck-result"), "✅ An toàn");
+    check("C1: Link JobsGo thật — điểm", getResultScore(window, "quickcheck-result"), "0");
+}
+
+{
+    // Tình huống C2: Domain giả mạo ngân hàng (gạch ngang chen giữa tên brand)
+    const window = loadPage();
+    runQuickcheck(window, "Tài khoản của bạn bị khóa, vui lòng xác minh tại https://vietcom-bank-verify.xyz/login");
+    const hasImpersonationWarning = window.document
+        .getElementById("quickcheck-result")
+        .querySelector(".result-reasons")
+        .textContent.includes("giả mạo");
+    check("C2: Domain giả mạo Vietcombank — phát hiện được", hasImpersonationWarning, true);
+    check("C2: Domain giả mạo Vietcombank — mức độ", getResultTitle(window, "quickcheck-result"), "🚨 Rủi ro cao");
+}
+
+{
+    // Tình huống C3: Domain chính thức — KHÔNG được báo nhầm là giả mạo
+    const window = loadPage();
+    runQuickcheck(window, "Đăng nhập tại https://vietcombank.com.vn để kiểm tra số dư");
+    const hasImpersonationWarning = window.document
+        .getElementById("quickcheck-result")
+        .querySelector(".result-reasons")
+        .textContent.includes("giả mạo");
+    check("C3: Domain chính thức — KHÔNG báo nhầm giả mạo", hasImpersonationWarning, false);
+    check("C3: Domain chính thức — mức độ", getResultTitle(window, "quickcheck-result"), "✅ An toàn");
+}
+
+{
+    // Tình huống C4: Link rút gọn
+    const window = loadPage();
+    runQuickcheck(window, "Nhận quà miễn phí tại đây: https://bit.ly/abc123");
+    const hasShortenerWarning = window.document
+        .getElementById("quickcheck-result")
+        .querySelector(".result-reasons")
+        .textContent.includes("rút gọn");
+    check("C4: Link rút gọn bit.ly — phát hiện được", hasShortenerWarning, true);
 }
 
 // ==============================================================
