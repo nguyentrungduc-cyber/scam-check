@@ -230,6 +230,95 @@ console.log("\n--- Phân tích link ---\n");
 }
 
 // ==============================================================
+// NHÓM D: CHỐNG CỘNG ĐIỂM SAI / BÁO NHẦM / BỎ SÓT
+// ==============================================================
+console.log("\n--- Trường hợp biên ---\n");
+
+function getReasonsText(window) {
+    return window.document.getElementById("quickcheck-result").querySelector(".result-reasons").textContent;
+}
+
+{
+    // D1: "mã OTP" chỉ tính 1 lần (không cộng thêm từ khóa "otp" nằm bên trong)
+    const window = loadPage();
+    runQuickcheck(window, "Gửi mình mã OTP nhé");
+    check("D1: 'mã OTP' không bị cộng trùng — điểm", getResultScore(window, "quickcheck-result"), "5");
+}
+
+{
+    // D2: Chèn nhiều link uy tín KHÔNG được làm giảm điểm rủi ro
+    const window = loadPage();
+    runQuickcheck(window, "Đóng phí hồ sơ và gửi mã OTP. Tham khảo jobsgo.vn/a topcv.vn/b vietnamworks.com/c");
+    check("D2: Chèn link uy tín không rửa được điểm — mức độ", getResultTitle(window, "quickcheck-result"), "🚨 Rủi ro cao");
+}
+
+{
+    // D3: Từ khóa nằm lẫn trong từ khác không bị tính ("otp" trong "hotpot")
+    const window = loadPage();
+    runQuickcheck(window, "Tối nay đi ăn hotpot không?");
+    check("D3: 'hotpot' không khớp 'otp' — điểm", getResultScore(window, "quickcheck-result"), "0");
+}
+
+{
+    // D4: Cùng 1 link lặp lại nhiều lần chỉ tính 1 lần; link rút gọn không bị tính trùng với từ khóa
+    const window = loadPage();
+    runQuickcheck(window, "https://bit.ly/a https://bit.ly/b https://bit.ly/c");
+    check("D4: Link bit.ly lặp lại chỉ tính 1 lần — điểm", getResultScore(window, "quickcheck-result"), "2");
+}
+
+{
+    // D5: Dấu câu dính cuối link không làm hỏng việc nhận diện TLD
+    const window = loadPage();
+    runQuickcheck(window, "Xác minh tại https://vietcom-bank-verify.xyz, nhanh");
+    check("D5: Link có dấu phẩy phía sau — điểm", getResultScore(window, "quickcheck-result"), "9");
+}
+
+{
+    // D6: Scheme viết hoa
+    const window = loadPage();
+    runQuickcheck(window, "HTTPS://vietcom-bank.xyz/a");
+    check("D6: Link 'HTTPS://' viết hoa — điểm", getResultScore(window, "quickcheck-result"), "9");
+}
+
+{
+    // D7: Link không có scheme, không có path
+    const window = loadPage();
+    runQuickcheck(window, "Truy cập vietcom-bank-verify.xyz để xác minh");
+    check("D7: Link không scheme/không path — phát hiện giả mạo", getReasonsText(window).includes("giả mạo"), true);
+}
+
+{
+    // D8: Chữ dính dấu chấm không có TLD thật thì không bị coi là link
+    const window = loadPage();
+    runQuickcheck(window, "Mình gửi vietcombank.Vui lòng kiểm tra giúp");
+    check("D8: 'vietcombank.Vui' không bị coi là link — điểm", getResultScore(window, "quickcheck-result"), "0");
+}
+
+{
+    // D9: Text dạng Unicode NFD (dấu tách rời) vẫn khớp từ khóa
+    const window = loadPage();
+    runQuickcheck(window, "Cung cấp mật khẩu cho mình".normalize("NFD"));
+    check("D9: Text NFD vẫn khớp 'mật khẩu' — điểm", getResultScore(window, "quickcheck-result"), "5");
+}
+
+{
+    // D10: Brand ngắn không báo nhầm khi nằm lẫn trong từ khác, nhưng vẫn bắt khi đứng riêng
+    const window = loadPage();
+    runQuickcheck(window, "https://tacbao.com/a");
+    check("D10a: 'tacbao.com' không bị báo giả mạo ACB", getReasonsText(window).includes("giả mạo"), false);
+    runQuickcheck(window, "https://acb-verify.com/a");
+    check("D10b: 'acb-verify.com' bị báo giả mạo ACB", getReasonsText(window).includes("giả mạo"), true);
+}
+
+{
+    // D11: Bấm kiểm tra với ô trống sau khi đã có kết quả → ẩn kết quả cũ
+    const window = loadPage();
+    runQuickcheck(window, "Gửi mình mã OTP nhé");
+    runQuickcheck(window, "   ");
+    check("D11: Input rỗng sau lần check trước — ẩn kết quả cũ", window.document.getElementById("quickcheck-result").classList.contains("hidden"), true);
+}
+
+// ==============================================================
 console.log("\n" + "=".repeat(60));
 console.log(`KẾT QUẢ: ${passCount} PASS / ${failCount} FAIL`);
 console.log("=".repeat(60));

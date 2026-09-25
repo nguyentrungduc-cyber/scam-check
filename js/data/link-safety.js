@@ -60,6 +60,11 @@ const IMPERSONATION_TARGETS = [
     // TODO: tổ bổ sung thêm thương hiệu hay bị giả mạo
 ];
 
+// Tên brand có độ dài <= giá trị này (acb, bidv, momo, tiki) được coi là "ngắn":
+// chỉ tính giả mạo khi tên đứng riêng thành 1 phần của domain ("acb-verify.xyz"),
+// tránh báo nhầm domain vô tình chứa chuỗi đó ("tacbao.com")
+const SHORT_BRAND_MAX_LENGTH = 4;
+
 // ==== TLD (đuôi domain) THƯỜNG DÙNG CHO WEB LỪA ĐẢO ====
 // Không có nghĩa domain đuôi này CHẮC CHẮN là lừa đảo — chỉ là tín hiệu
 // cộng thêm điểm cảnh giác vì các TLD này rẻ/dễ đăng ký ẩn danh, hay bị
@@ -67,6 +72,16 @@ const IMPERSONATION_TARGETS = [
 const SUSPICIOUS_TLDS = [
     ".xyz", ".top", ".click", ".tk", ".work", ".live",
     ".loan", ".gq", ".ml", ".cf", ".ga", ".icu"
+];
+
+// ==== TLD PHỔ BIẾN (dùng để nhận diện link KHÔNG có http/https) ====
+// Link dạng "abc-verify.xyz" (không có scheme) chỉ được coi là link khi
+// đuôi domain nằm trong danh sách này — tránh nhận nhầm chữ thường
+// kiểu "xong.Vui lòng..." thành domain. Có scheme thì không cần kiểm tra.
+const KNOWN_TLDS = [
+    "vn", "com", "net", "org", "info", "biz", "io", "co", "me", "app",
+    "online", "site", "shop", "store", "link", "cc", "ly", "at", "gd",
+    ...SUSPICIOUS_TLDS.map((tld) => tld.slice(1))
 ];
 
 // ==== DỊCH VỤ RÚT GỌN LINK ====
@@ -87,5 +102,6 @@ const LINK_SEVERITY = {
     impersonation: 6,   // domain giả mạo gần giống thương hiệu lớn — rất nghiêm trọng
     suspiciousTld: 3,   // domain dùng TLD đáng ngờ
     shortener: 2,       // dùng dịch vụ rút gọn link
-    trustedBonus: -3    // domain nằm trong whitelist — TRỪ điểm (tín hiệu tích cực)
+    trusted: 0          // domain nằm trong whitelist — KHÔNG trừ điểm: nếu trừ, kẻ lừa đảo
+                        // chỉ cần chèn thêm vài link thật là "rửa" được điểm rủi ro
 };

@@ -68,7 +68,6 @@ const WARNING_KEYWORDS = [
     { keyword: "trong vòng 30 phút", severity: 3, note: "Giới hạn thời gian ngắn bất thường để ép quyết định vội vàng" },
     { keyword: "bảo mật thông tin không được nói với ai", severity: 4, note: "Yêu cầu giữ bí mật với người thân là dấu hiệu cô lập nạn nhân điển hình" },
     { keyword: "link rút gọn", severity: 3, note: "Link rút gọn có thể che giấu địa chỉ web độc hại" },
-    { keyword: "bit.ly", severity: 2, note: "Cẩn trọng khi bấm vào link rút gọn từ người lạ" },
     { keyword: "cài đặt ứng dụng", severity: 3, note: "Cẩn trọng với yêu cầu tải app ngoài Google Play/App Store chính thức" },
 ];
 

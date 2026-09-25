@@ -15,25 +15,69 @@
  */
 
 // ---- BƯỚC 1: Quét text tìm từ khóa khớp ----
-function scanTextForKeywords(text) {
-    const normalized = text.toLowerCase();
+// Chuẩn hóa NFC để text dán từ macOS/một số app (dạng NFD — dấu tách rời)
+// vẫn khớp được với từ khóa có dấu
+function normalizeText(text) {
+    return text.normalize("NFC").toLowerCase();
+}
 
-    return WARNING_KEYWORDS.filter((item) =>
-        normalized.includes(item.keyword.toLowerCase())
-    );
+function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Tìm mọi vị trí xuất hiện của keyword như một TỪ/CỤM TỪ riêng
+// (không nằm lẫn trong từ khác) — tránh "otp" khớp nhầm trong "hotpot"
+function findKeywordRanges(normalizedText, keyword) {
+    const pattern = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegExp(keyword)}(?![\\p{L}\\p{N}])`, "gu");
+    return Array.from(normalizedText.matchAll(pattern), (m) => [m.index, m.index + m[0].length]);
+}
+
+function scanTextForKeywords(text) {
+    const normalized = normalizeText(text);
+
+    // Xét cụm dài trước: nếu cụm ngắn ("otp") chỉ xuất hiện BÊN TRONG cụm dài
+    // đã khớp ("mã otp") thì không cộng điểm lần nữa cho cùng 1 ý
+    const sorted = WARNING_KEYWORDS
+        .map((item) => ({ item, keyword: normalizeText(item.keyword) }))
+        .sort((a, b) => b.keyword.length - a.keyword.length);
+
+    const usedRanges = [];
+    const found = [];
+
+    sorted.forEach(({ item, keyword }) => {
+        const ranges = findKeywordRanges(normalized, keyword);
+        const hasFreshMatch = ranges.some(([start, end]) =>
+            !usedRanges.some(([uStart, uEnd]) => start < uEnd && end > uStart)
+        );
+        if (hasFreshMatch) found.push(item);
+        usedRanges.push(...ranges);
+    });
+
+    // Giữ đúng thứ tự như trong WARNING_KEYWORDS để hiển thị ổn định
+    return WARNING_KEYWORDS.filter((item) => found.includes(item));
 }
 
 // ---- BƯỚC 2: Tìm các link trong text ----
 function extractLinks(text) {
-    // Bắt cả link có scheme (http/https) lẫn link không có scheme
-    // (vd: "jobsgo.vn/viec-lam/...") — thêm scheme giả để URL() parse được
-    const urlPattern = /(https?:\/\/[^\s]+)|(\b[a-z0-9-]+\.[a-z]{2,}(?:\.[a-z]{2,})?\/[^\s]*)/gi;
+    // Bắt cả link có scheme (http/https, không phân biệt hoa thường) lẫn
+    // link không có scheme (vd: "jobsgo.vn/viec-lam/..." hoặc "abc-verify.xyz")
+    const urlPattern = /(https?:\/\/[^\s]+)|((?<![@\w.-])(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s]*)?)/gi;
     const matches = text.match(urlPattern) || [];
 
-    return matches.map((raw) => {
-        const withScheme = raw.startsWith("http") ? raw : `https://${raw}`;
+    return matches.map((match) => {
+        // Bỏ dấu câu dính ở cuối link (vd: "https://abc.xyz," hoặc "abc.xyz).")
+        const raw = match.replace(/[.,;:!?)\]}'"»”]+$/, "");
+        const hasScheme = /^https?:\/\//i.test(raw);
+        const withScheme = hasScheme ? raw : `https://${raw}`;
         try {
-            return { raw, url: new URL(withScheme) };
+            const url = new URL(withScheme);
+            // Link không có scheme dễ khớp nhầm chữ thường ("xong.Vui lòng...")
+            // → chỉ chấp nhận khi đuôi domain là TLD có thật trong danh sách
+            if (!hasScheme) {
+                const tld = url.hostname.split(".").pop();
+                if (!KNOWN_TLDS.includes(tld)) return null;
+            }
+            return { raw, url };
         } catch {
             return null; // link không hợp lệ, bỏ qua
         }
@@ -47,11 +91,11 @@ function analyzeSingleLink(hostname) {
     let severity = 0;
     const reasons = [];
 
-    // 3a. Domain nằm trong whitelist uy tín -> trừ điểm, dừng phân tích thêm
+    // 3a. Domain nằm trong whitelist uy tín -> không cộng điểm, dừng phân tích thêm
     const isTrusted = TRUSTED_DOMAINS.some((d) => host === d || host.endsWith("." + d));
     if (isTrusted) {
         return {
-            severity: LINK_SEVERITY.trustedBonus,
+            severity: LINK_SEVERITY.trusted,
             reasons: [{ text: `Link "${host}"`, note: "Thuộc domain đã xác minh uy tín" }]
         };
     }
@@ -61,9 +105,14 @@ function analyzeSingleLink(hostname) {
     // Chuẩn hóa: bỏ dấu gạch ngang/số để bắt được cả kiểu giả mạo
     // "vietcom-bank-verify.xyz" (có gạch ngang chen giữa tên brand)
     const normalizedHost = host.replace(/[-0-9]/g, "");
+    // Tên brand ngắn (acb, bidv, tiki...) dễ nằm lẫn trong từ khác ("tacbao.com")
+    // → chỉ tính khi đứng thành 1 phần riêng của domain ("acb-verify.xyz")
+    const hostTokens = host.replace(/[0-9]/g, "").split(/[.-]/);
     for (const target of IMPERSONATION_TARGETS) {
         const isOfficial = host === target.officialDomain || host.endsWith("." + target.officialDomain);
-        const containsBrandName = normalizedHost.includes(target.brand);
+        const containsBrandName = target.brand.length <= SHORT_BRAND_MAX_LENGTH
+            ? hostTokens.includes(target.brand)
+            : normalizedHost.includes(target.brand);
 
         if (containsBrandName && !isOfficial) {
             severity += LINK_SEVERITY.impersonation;
@@ -104,8 +153,12 @@ function analyzeLinkSafety(text) {
     let totalSeverity = 0;
     let allReasons = [];
 
-    links.forEach(({ url }) => {
-        const { severity, reasons } = analyzeSingleLink(url.hostname);
+    // Mỗi domain chỉ phân tích 1 lần — dán lặp lại cùng 1 link nhiều lần
+    // không làm điểm tăng/giảm theo số lần lặp
+    const uniqueHosts = [...new Set(links.map(({ url }) => url.hostname.toLowerCase().replace(/^www\./, "")))];
+
+    uniqueHosts.forEach((hostname) => {
+        const { severity, reasons } = analyzeSingleLink(hostname);
         totalSeverity += severity;
         allReasons = allReasons.concat(reasons);
     });
@@ -121,7 +174,6 @@ function calculateQuickcheckScore(foundKeywords, linkAnalysis) {
 
 // ---- BƯỚC 6: Hiển thị kết quả ----
 // Dùng chung renderResultBox() đã định nghĩa trong checklist.js
-// score truyền vào đã là điểm cuối cùng để hiển thị (không âm)
 function renderQuickcheckResult(score, level, foundKeywords, linkAnalysis) {
     const keywordReasons = foundKeywords.map((k) => ({
         text: `"${k.keyword}"`,
@@ -142,6 +194,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const text = input.value;
 
             if (!text.trim()) {
+                // Ẩn kết quả của lần kiểm tra trước để tránh hiểu nhầm
+                document.getElementById("quickcheck-result")?.classList.add("hidden");
                 input.focus();
                 input.placeholder = "⚠️ Vui lòng dán nội dung cần kiểm tra trước khi bấm Kiểm tra";
                 return;
@@ -149,11 +203,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const foundKeywords = scanTextForKeywords(text);
             const linkAnalysis = analyzeLinkSafety(text);
-            const rawScore = calculateQuickcheckScore(foundKeywords, linkAnalysis);
-            const displayScore = Math.max(0, rawScore); // không hiển thị điểm âm
-            const level = getRiskLevel(displayScore, QUICKCHECK_THRESHOLDS);
+            const score = calculateQuickcheckScore(foundKeywords, linkAnalysis);
+            const level = getRiskLevel(score, QUICKCHECK_THRESHOLDS);
 
-            renderQuickcheckResult(displayScore, level, foundKeywords, linkAnalysis);
+            renderQuickcheckResult(score, level, foundKeywords, linkAnalysis);
         });
     }
 });
