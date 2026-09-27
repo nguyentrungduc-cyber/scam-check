@@ -72,7 +72,10 @@ const RISK_LEVEL_INFO = {
 
 // ---- BƯỚC 4: Hiển thị kết quả ----
 // reasons: mảng các { text, note } — text là câu hỏi/từ khóa, note là giải thích (có thể để trống)
-function renderResultBox(containerId, score, level, reasons) {
+// moreLink: { href, label } tùy chọn — mặc định trỏ về trang dấu hiệu lừa đảo
+// (giữ nguyên hành vi cũ cho checklist lừa đảo + quickcheck, không cần sửa gì
+// ở 2 nơi đó khi thêm tham số mới này)
+function renderResultBox(containerId, score, level, reasons, moreLink) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -82,14 +85,16 @@ function renderResultBox(containerId, score, level, reasons) {
         ? reasons.map(r => `<li>${r.text}${r.note ? ` — <em>${r.note}</em>` : ""}</li>`).join("")
         : "<li>Không có dấu hiệu nào được ghi nhận.</li>";
 
+    const link = moreLink || { href: "pages/dau-hieu-lua-dao.html", label: "Xem đầy đủ các dấu hiệu lừa đảo phổ biến →" };
+
     container.innerHTML = `
         <div class="result-card result-${level}">
             <h3 class="result-title">${info.title}</h3>
             <p class="result-score">Điểm rủi ro: <span class="score-value">${score}</span></p>
             <ul class="result-reasons">${reasonsHtml}</ul>
             <p class="result-advice">${info.advice}</p>
-            <a href="pages/dau-hieu-lua-dao.html" class="link-more">
-                Xem đầy đủ các dấu hiệu lừa đảo phổ biến →
+            <a href="${link.href}" class="link-more">
+                ${link.label}
             </a>
         </div>
     `;

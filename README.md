@@ -66,8 +66,12 @@ Deploy miễn phí bằng GitHub Pages:
 - [x] Nội dung trang "Dấu hiệu lừa đảo phổ biến" (9 dấu hiệu chi tiết)
 - [x] Phân tích link trong quickcheck: whitelist domain uy tín, phát hiện
       domain giả mạo thương hiệu (typosquatting), TLD đáng ngờ, link rút gọn
-- [x] Bộ test tự động (23 test case, xem `tests/run-tests.js`)
-- [ ] Deploy GitHub Pages
+- [x] Checklist "Bảo vệ dữ liệu cá nhân" (10 câu đánh giá thói quen bảo
+      mật hằng ngày: 2FA, mật khẩu, chia sẻ thông tin, thiết bị) — khác
+      checklist lừa đảo ở chỗ đánh giá thói quen tổng thể, không phải 1
+      tình huống cụ thể + trang hướng dẫn tương ứng
+- [x] Bộ test tự động (43 test case, xem `tests/run-tests.js`)
+- [x] Deploy GitHub Pages: https://nguyentrungduc-cyber.github.io/scam-check/
 
 ## Chạy test tự động
 

@@ -20,16 +20,19 @@
              PHẦN 1: TRANG CHỦ / GIỚI THIỆU
              ============================================ -->
         <section id="intro" class="hero">
-            <h2>Bạn có đang bị lừa không?</h2>
+            <h2>Tự bảo vệ mình trước lừa đảo và rò rỉ dữ liệu</h2>
             <p class="hero-desc">
-                Công cụ giúp bạn nhanh chóng đánh giá mức độ rủi ro của một lời mời,
-                tin nhắn hoặc tình huống nghi ngờ lừa đảo — miễn phí, không lưu dữ liệu,
-                chạy hoàn toàn trên trình duyệt của bạn.
+                Công cụ giúp bạn nhanh chóng đánh giá mức độ rủi ro của một tình huống nghi
+                ngờ lừa đảo, đồng thời kiểm tra thói quen bảo mật thông tin cá nhân hằng ngày
+                — miễn phí, không lưu dữ liệu, chạy hoàn toàn trên trình duyệt của bạn.
             </p>
 
             <div class="cta-group">
                 <a href="#checklist-section" class="btn btn-primary" data-action="show-checklist">
-                    📋 Làm Checklist
+                    📋 Kiểm tra tình huống nghi ngờ
+                </a>
+                <a href="#privacy-checklist-section" class="btn btn-primary" data-action="show-privacy-checklist">
+                    🔐 Đánh giá thói quen bảo mật
                 </a>
                 <a href="#quickcheck-section" class="btn btn-secondary" data-action="show-quickcheck">
                     🔍 Kiểm tra tin nhắn / link
@@ -42,7 +45,7 @@
              (8-10 câu có/không, có trọng số ẩn)
              ============================================ -->
         <section id="checklist-section" class="feature-section">
-            <h2>📋 Checklist đánh giá tình huống</h2>
+            <h2>📋 Checklist: Kiểm tra tình huống nghi ngờ</h2>
             <p class="section-desc">
                 Trả lời các câu hỏi dưới đây dựa trên tình huống bạn đang gặp phải.
             </p>
@@ -66,6 +69,32 @@
 
             <!-- Kết quả checklist sẽ hiện ở đây sau khi submit -->
             <div id="checklist-result" class="result-box hidden"></div>
+        </section>
+
+        <!-- ============================================
+             PHẦN 2b: CHECKLIST BẢO VỆ DỮ LIỆU CÁ NHÂN
+             (10 câu đánh giá thói quen bảo mật hằng ngày —
+             KHÁC checklist trên: không đánh giá 1 tình huống cụ thể,
+             mà đánh giá thói quen tổng thể của người dùng)
+             ============================================ -->
+        <section id="privacy-checklist-section" class="feature-section">
+            <h2>🔐 Checklist: Đánh giá thói quen bảo mật</h2>
+            <p class="section-desc">
+                Trả lời các câu hỏi dưới đây về thói quen bảo vệ thông tin cá nhân của bạn
+                trong đời sống hằng ngày.
+            </p>
+
+            <form id="privacy-checklist-form">
+                <div id="privacy-checklist-questions" class="questions-list">
+                    <p class="placeholder-note">⏳ Câu hỏi sẽ hiển thị ở đây (chờ nối dữ liệu từ privacy-checklist-questions.js)</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="btn-privacy-checklist-submit">
+                    Xem kết quả
+                </button>
+            </form>
+
+            <div id="privacy-checklist-result" class="result-box hidden"></div>
         </section>
 
         <!-- ============================================
@@ -122,9 +151,11 @@
 
     <!-- Thứ tự load JS: dữ liệu trước, logic sau -->
     <script src="js/data/checklist-questions.js"></script>
+    <script src="js/data/privacy-checklist-questions.js"></script>
     <script src="js/data/warning-keywords.js"></script>
     <script src="js/data/link-safety.js"></script>
     <script src="js/checklist.js"></script>
+    <script src="js/privacy-checklist.js"></script>
     <script src="js/quickcheck.js"></script>
     <script src="js/main.js"></script>
 </body>

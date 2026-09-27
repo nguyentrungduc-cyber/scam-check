@@ -27,9 +27,11 @@ function loadPage() {
 
     const scripts = [
         "js/data/checklist-questions.js",
+        "js/data/privacy-checklist-questions.js",
         "js/data/warning-keywords.js",
         "js/data/link-safety.js",
         "js/checklist.js",
+        "js/privacy-checklist.js",
         "js/quickcheck.js",
         "js/main.js",
     ];
@@ -316,6 +318,69 @@ function getReasonsText(window) {
     runQuickcheck(window, "Gửi mình mã OTP nhé");
     runQuickcheck(window, "   ");
     check("D11: Input rỗng sau lần check trước — ẩn kết quả cũ", window.document.getElementById("quickcheck-result").classList.contains("hidden"), true);
+}
+
+// ==============================================================
+// NHÓM E: CHECKLIST BẢO VỆ DỮ LIỆU CÁ NHÂN
+// ==============================================================
+console.log("\n--- Checklist bảo vệ dữ liệu cá nhân ---\n");
+
+function answerPrivacyChecklist(window, answers) {
+    const ids = Array.from(window.document.querySelectorAll("#privacy-checklist-questions .question-item input[value=yes]"))
+        .map((el) => el.name);
+    ids.forEach((id) => {
+        const value = answers[id] || "yes"; // mặc định "Có" (Đã làm)
+        window.document.querySelector(`input[name=${id}][value=${value}]`).checked = true;
+    });
+    window.document.getElementById("privacy-checklist-form")
+        .dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true }));
+}
+
+{
+    // E1: Render đủ 10 câu hỏi
+    const window = loadPage();
+    check("E1: Render đủ 10 câu hỏi checklist bảo vệ dữ liệu", window.document.querySelectorAll("#privacy-checklist-questions .question-item").length, 10);
+}
+
+{
+    // E2: Trả lời toàn bộ đúng thói quen tốt (kể cả 3 câu ngược chiều p2/p5/p8) → An toàn, 0 điểm
+    const window = loadPage();
+    answerPrivacyChecklist(window, { p1: "yes", p2: "no", p3: "yes", p4: "yes", p5: "no", p6: "yes", p7: "yes", p8: "no", p9: "yes", p10: "yes" });
+    check("E2: Toàn bộ thói quen tốt — điểm", getResultScore(window, "privacy-checklist-result"), "0");
+    check("E2: Toàn bộ thói quen tốt — mức độ", getResultTitle(window, "privacy-checklist-result"), "✅ An toàn");
+}
+
+{
+    // E3: Trả lời toàn bộ ngược lại (thói quen xấu hoàn toàn) → Rủi ro cao, điểm tối đa 39
+    const window = loadPage();
+    answerPrivacyChecklist(window, { p1: "no", p2: "yes", p3: "no", p4: "no", p5: "yes", p6: "no", p7: "no", p8: "yes", p9: "no", p10: "no" });
+    check("E3: Toàn bộ thói quen xấu — điểm tối đa", getResultScore(window, "privacy-checklist-result"), "39");
+    check("E3: Toàn bộ thói quen xấu — mức độ", getResultTitle(window, "privacy-checklist-result"), "🚨 Rủi ro cao");
+}
+
+{
+    // E4: Câu ngược chiều (p2 — dùng chung mật khẩu) trả lời "Có" phải CỘNG điểm,
+    // không phải trừ điểm hay bỏ qua — đây là điểm dễ code sai nhất của checklist này
+    const window = loadPage();
+    answerPrivacyChecklist(window, { p2: "yes" }); // chỉ 1 câu ngược chiều = "Có" (xấu), còn lại mặc định "yes" (tốt vì đa số là câu thuận)
+    const score = parseInt(getResultScore(window, "privacy-checklist-result"), 10);
+    check("E4: Câu ngược chiều (p2) trả lời Có → có cộng điểm (không phải 0)", score > 0, true);
+}
+
+{
+    // E5: Link "Xem thêm" phải trỏ đúng trang bảo vệ dữ liệu, KHÔNG lẫn sang trang dấu hiệu lừa đảo
+    const window = loadPage();
+    answerPrivacyChecklist(window, {});
+    const href = window.document.getElementById("privacy-checklist-result").querySelector(".link-more")?.getAttribute("href");
+    check("E5: Link Xem thêm trỏ đúng trang bảo vệ dữ liệu (không lẫn checklist kia)", href, "pages/bao-ve-du-lieu-ca-nhan.html");
+}
+
+{
+    // E6: Checklist lừa đảo (cũ) không bị ảnh hưởng — vẫn trỏ đúng link cũ sau khi thêm checklist mới
+    const window = loadPage();
+    answerChecklist(window, {});
+    const href = window.document.getElementById("checklist-result").querySelector(".link-more")?.getAttribute("href");
+    check("E6: Checklist lừa đảo (cũ) không bị ảnh hưởng — link vẫn đúng trang cũ", href, "pages/dau-hieu-lua-dao.html");
 }
 
 // ==============================================================
